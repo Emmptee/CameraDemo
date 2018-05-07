@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RecordActivity">
+
+    <LinearLayout
+        android:id="@+id/layout_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <SurfaceView
+            android:id="@+id/sv_left"
+            android:layout_width="150dp"
+            android:layout_height="300dp" />
+
+        <FrameLayout
+            android:layout_width="150dp"
+            android:layout_height="300dp">
+
+            <com.yoyo.mediacodec.camera.CameraView
+                android:id="@+id/sv_right"
+                android:layout_width="150dp"
+                android:layout_height="300dp" />
+
+            <!-- 挡板控件 当切换前后摄像头的时候 负责高斯模糊操作 android:background="#ff4545"
+                  android:src="@drawable/ic_launcher"-->
+
+            <ImageView
+                android:id="@+id/baffle_bg_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/baffle_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:visibility="gone" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="播放"
+        app:layout_constraintTop_toBottomOf="@+id/layout_video" />
+
+    <Button
+        android:id="@+id/btn_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="停止"
+        app:layout_constraintStart_toEndOf="@id/btn_play"
+        app:layout_constraintTop_toBottomOf="@+id/layout_video" />
+</android.support.constraint.ConstraintLayout>
