@@ -56,6 +56,8 @@ public class CameraView extends GLSurfaceView implements Renderer, OnFrameAvaila
 {
     int textureId = -1;	//纹理id
 
+    public static final int MEDIA_QUALITY_MIDDLE = 16 * 100000;
+
     private SurfaceTexture surfaceTexture = null;	//纹理贴图
     private TextureDraw    textureDraw    = null;	//用于绘制纹理
 
@@ -380,8 +382,6 @@ public class CameraView extends GLSurfaceView implements Renderer, OnFrameAvaila
         //进行对焦操作
         cameraInstance.autoFocus(new Point(focusX, focusY), new PointF(touchX, touchY));
     }
-
-
 
     /**
      * ------------------------------------------------------------------------------

@@ -60,4 +60,25 @@
         android:text="停止"
         app:layout_constraintStart_toEndOf="@id/btn_play"
         app:layout_constraintTop_toBottomOf="@+id/layout_video" />
+    <Button
+        android:id="@+id/btn_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="拍摄"
+        app:layout_constraintTop_toBottomOf="@id/layout_video"
+         app:layout_constraintLeft_toRightOf="@id/btn_stop"/>
+    <Button
+        android:id="@+id/btn_stop_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="STOP"
+        app:layout_constraintTop_toBottomOf="@id/layout_video"
+        app:layout_constraintLeft_toRightOf="@id/btn_screen"/>
+    <Button
+        android:id="@+id/btn_turn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="翻转"
+        app:layout_constraintTop_toBottomOf="@id/btn_play"
+        />
 </android.support.constraint.ConstraintLayout>

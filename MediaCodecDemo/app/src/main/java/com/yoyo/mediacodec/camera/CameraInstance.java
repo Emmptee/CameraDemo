@@ -14,7 +14,10 @@ import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
+import android.util.Log;
+import android.view.View;
 
+import com.socks.library.KLog;
 import com.yoyo.mediacodec.camera.callback.FocusCameraCallback;
 import com.yoyo.mediacodec.camera.callback.SwitchCameraCallback;
 import com.yoyo.mediacodec.camera.callback.SwitchFlashModeCallback;
@@ -154,6 +157,8 @@ public class CameraInstance
             isPreviewing = false;
         }
     }
+
+
 
     /**
      * 开始预览相机
@@ -300,7 +305,7 @@ public class CameraInstance
 
     /**
      * 设置对焦回调
-     * @param callback
+     * @param
      */
     public void setFocusCallback(FocusCameraCallback f)
     {
@@ -447,6 +452,7 @@ public class CameraInstance
          * 不支持直接返回
          */
         if(!supportSwitchCamera())
+
             return;
 
         /**
@@ -482,6 +488,7 @@ public class CameraInstance
             if(null != switchCameraCallback)
             {
                 switchCameraCallback.failSwitch();
+                KLog.e("切换失败");
             }
 
             return;
@@ -498,8 +505,10 @@ public class CameraInstance
         if(null != switchCameraCallback)
         {
             switchCameraCallback.finishSwitch();
+            KLog.e("切换成功");
         }
     }
+
 
     /**
      * ----------------------------------------------------------------

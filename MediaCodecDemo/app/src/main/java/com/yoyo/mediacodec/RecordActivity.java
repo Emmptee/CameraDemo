@@ -32,8 +32,6 @@ public class RecordActivity extends Activity {
 
     private Player player;
 
-    private Camera mCamera;
-
     private Camera.Size mVideoSize;
 
     private MediaRecorder mediaRecorder;
@@ -48,14 +46,13 @@ public class RecordActivity extends Activity {
         svLeft = findViewById(R.id.sv_left);
         svRight = findViewById(R.id.sv_right);
 
-
         player = new Player(svLeft);
 
         findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mediaRecorder.reset();
-                mediaRecorder.start();
+//                mediaRecorder.reset();
+//                mediaRecorder.start();
                 player.playUrl("/mnt/sdcard/ffmpeg/666.mp4");
             }
         });
@@ -67,7 +64,27 @@ public class RecordActivity extends Activity {
             }
         });
 
+        findViewById(R.id.btn_screen).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+            }
+        });
+        findViewById(R.id.btn_stop_screen).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        findViewById(R.id.btn_turn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                CameraInstance cameraInstance= CameraInstance.getInstance();
+                cameraInstance.switchCamera();
+            }
+        });
 //
 //        final int toOpen = getCurrentCameraId();
 //        mCamera = Camera.open(toOpen);
@@ -141,19 +158,6 @@ public class RecordActivity extends Activity {
         mediaRecorder = null;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     private int getCurrentCameraId() {
 
         int numberOfCameras = Camera.getNumberOfCameras();
@@ -184,9 +188,6 @@ public class RecordActivity extends Activity {
         }
         return choices.get(choices.size() - 1);
     }
-
-
-
 
     private void initRecorder() {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
