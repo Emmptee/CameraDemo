@@ -3,6 +3,8 @@ package com.yoyo.mediacodec.camera.state;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import com.yoyo.mediacodec.camera.CameraInterface;
+
 
 /**
  * @author Qi
@@ -14,7 +16,7 @@ public interface State {
 
     void stop();
 
-//    void foucs(float x, float y, CameraInterface.FocusCallback callback);
+    void foucs(float x, float y, CameraInterface.FocusCallback callback);
 
     void swtich(SurfaceHolder holder, float screenProp);
 
