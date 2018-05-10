@@ -11,39 +11,39 @@
     <LinearLayout
         android:id="@+id/layout_video"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
+        android:layout_height="300dp"
+        android:orientation="horizontal">
         <SurfaceView
             android:id="@+id/sv_left"
-            android:layout_width="150dp"
-            android:layout_height="300dp" />
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
 
         <FrameLayout
-            android:layout_width="150dp"
-            android:layout_height="300dp">
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+            <VideoView
+                android:id="@+id/video_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <ImageView
+                android:id="@+id/image_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000"
+                android:visibility="invisible"/>
 
             <com.yoyo.mediacodec.camera.JCameraView
                 android:id="@+id/sv_right"
-                android:layout_width="150dp"
-                android:layout_height="300dp" />
-
-            <!-- 挡板控件 当切换前后摄像头的时候 负责高斯模糊操作 android:background="#ff4545"
-                  android:src="@drawable/ic_launcher"-->
-
-            <ImageView
-                android:id="@+id/baffle_bg_view"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                />
 
-                android:visibility="gone" />
-
-            <ImageView
-                android:id="@+id/baffle_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-
-                android:visibility="gone" />
         </FrameLayout>
+
     </LinearLayout>
 
     <Button
@@ -81,4 +81,22 @@
         android:text="翻转"
         app:layout_constraintTop_toBottomOf="@id/btn_play"
         />
+
+    <!--<com.yoyo.mediacodec.camera.CountDownProgress
+        android:id="@+id/countdownProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:foregroundGravity="bottom"
+        tools:layout_editor_absoluteX="100dp"
+        tools:layout_editor_absoluteY="325dp"
+        tools:ignore="MissingConstraints" />-->
+    <com.yoyo.mediacodec.camera.CaptureButton
+        android:id="@+id/record_button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+    </com.yoyo.mediacodec.camera.CaptureButton>
 </android.support.constraint.ConstraintLayout>

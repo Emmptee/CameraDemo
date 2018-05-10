@@ -25,6 +25,7 @@ import android.widget.VideoView;
 import com.yoyo.mediacodec.R;
 import com.yoyo.mediacodec.camera.listener.CaptureListener;
 import com.yoyo.mediacodec.camera.listener.ClickListener;
+import com.yoyo.mediacodec.camera.listener.ErrorListener;
 import com.yoyo.mediacodec.camera.listener.JCameraListener;
 import com.yoyo.mediacodec.camera.listener.TypeListener;
 import com.yoyo.mediacodec.camera.state.CameraMachine;
@@ -35,7 +36,7 @@ import com.yoyo.mediacodec.camera.view.CameraView;
 
 import java.io.IOException;
 
-import javax.xml.transform.ErrorListener;
+
 
 public class JCameraView extends FrameLayout implements CameraInterface.CameraOpenOverCallback, SurfaceHolder
         .Callback, CameraView {
@@ -79,8 +80,8 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
     private Context mContext;
     private VideoView mVideoView;
     private ImageView mPhoto;
-    private ImageView mSwitchCamera;
-    private ImageView mFlashLamp;
+//    private ImageView mSwitchCamera;
+//    private ImageView mFlashLamp;
     private CaptureLayout mCaptureLayout;
     private FoucsView mFoucsView;
     private MediaPlayer mMediaPlayer;
@@ -127,7 +128,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         iconSrc = a.getResourceId(R.styleable.JCameraView_iconSrc, R.drawable.ic_camera);
         iconLeft = a.getResourceId(R.styleable.JCameraView_iconLeft, 0);
         iconRight = a.getResourceId(R.styleable.JCameraView_iconRight, 0);
-        duration = a.getInteger(R.styleable.JCameraView_duration_max, 10 * 1000);       //没设置默认为10s
+        duration = a.getInteger(R.styleable.JCameraView_duration_max, 5 * 1000);       //没设置默认为5s
         a.recycle();
         initData();
         initView();
@@ -138,7 +139,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         //缩放梯度
         zoomGradient = (int) (layout_width / 16f);
         LogUtil.i("zoom = " + zoomGradient);
-        machine = new CameraMachine(getContext(), this, this);
+        machine = new CameraMachine(getContext());
     }
 
     private void initView() {
@@ -146,52 +147,29 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         View view = LayoutInflater.from(mContext).inflate(R.layout.camera_view, this);
         mVideoView = (VideoView) view.findViewById(R.id.video_preview);
         mPhoto = (ImageView) view.findViewById(R.id.image_photo);
-        mSwitchCamera = (ImageView) view.findViewById(R.id.image_switch);
-        mSwitchCamera.setImageResource(iconSrc);
-        mFlashLamp = (ImageView) view.findViewById(R.id.image_flash);
-        setFlashRes();
-        mFlashLamp.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type_flash++;
-                if (type_flash > 0x023)
-                    type_flash = TYPE_FLASH_AUTO;
-                setFlashRes();
-            }
-        });
+
         mCaptureLayout = (CaptureLayout) view.findViewById(R.id.capture_layout);
-        mCaptureLayout.setDuration(duration);
+//        mCaptureLayout.setDuration(duration);
         mCaptureLayout.setIconSrc(iconLeft, iconRight);
         mFoucsView = (FoucsView) view.findViewById(R.id.fouce_view);
         mVideoView.getHolder().addCallback(this);
-        //切换摄像头
-        mSwitchCamera.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                machine.swtich(mVideoView.getHolder(), screenProp);
-            }
-        });
+
         //拍照 录像
         mCaptureLayout.setCaptureLisenter(new CaptureListener() {
             @Override
             public void takePictures() {
-                mSwitchCamera.setVisibility(INVISIBLE);
-                mFlashLamp.setVisibility(INVISIBLE);
                 machine.capture();
             }
 
             @Override
             public void recordStart() {
-                mSwitchCamera.setVisibility(INVISIBLE);
-                mFlashLamp.setVisibility(INVISIBLE);
                 machine.record(mVideoView.getHolder().getSurface(), screenProp);
             }
 
             @Override
             public void recordShort(final long time) {
                 mCaptureLayout.setTextWithAnimation("录制时间过短");
-                mSwitchCamera.setVisibility(VISIBLE);
-                mFlashLamp.setVisibility(VISIBLE);
+
                 postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -277,7 +255,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         LogUtil.i("JCameraView onResume");
         resetState(TYPE_DEFAULT); //重置状态
         CameraInterface.getInstance().registerSensorManager(mContext);
-        CameraInterface.getInstance().setSwitchView(mSwitchCamera, mFlashLamp);
+//        CameraInterface.getInstance().setSwitchView(mSwitchCamera);
         machine.start(mVideoView.getHolder(), screenProp);
     }
 
@@ -429,8 +407,8 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
                 mVideoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                 break;
         }
-        mSwitchCamera.setVisibility(VISIBLE);
-        mFlashLamp.setVisibility(VISIBLE);
+//        mSwitchCamera.setVisibility(VISIBLE);
+//        mFlashLamp.setVisibility(VISIBLE);
         mCaptureLayout.resetCaptureLayout();
     }
 
@@ -534,7 +512,6 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         LogUtil.i("startPreviewCallback");
         handlerFoucs(mFoucsView.getWidth() / 2, mFoucsView.getHeight() / 2);
     }
-
     @Override
     public boolean handlerFoucs(float x, float y) {
         if (y > mCaptureLayout.getTop()) {
@@ -576,15 +553,15 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
     private void setFlashRes() {
         switch (type_flash) {
             case TYPE_FLASH_AUTO:
-                mFlashLamp.setImageResource(R.drawable.ic_flash_auto);
+//                mFlashLamp.setImageResource(R.drawable.ic_flash_auto);
                 machine.flash(Camera.Parameters.FLASH_MODE_AUTO);
                 break;
             case TYPE_FLASH_ON:
-                mFlashLamp.setImageResource(R.drawable.ic_flash_on);
+//                mFlashLamp.setImageResource(R.drawable.ic_flash_on);
                 machine.flash(Camera.Parameters.FLASH_MODE_ON);
                 break;
             case TYPE_FLASH_OFF:
-                mFlashLamp.setImageResource(R.drawable.ic_flash_off);
+//                mFlashLamp.setImageResource(R.drawable.ic_flash_off);
                 machine.flash(Camera.Parameters.FLASH_MODE_OFF);
                 break;
         }

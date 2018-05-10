@@ -1,12 +1,10 @@
 package com.yoyo.mediacodec.camera.listener;
 
 /**
- * create by CJT2325
- * 445263848@qq.com.
+ * @author Qi
+ * @date 2018/05/10
  */
-
-public interface CaptureListener {
-    void takePictures();
+public interface CaptureButtonListener {
 
     void recordShort(long time);
 

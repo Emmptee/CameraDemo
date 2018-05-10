@@ -28,16 +28,15 @@ public class CameraMachine implements State {
     private State borrowPictureState; //浏览图片
     private State borrowVideoState;   //浏览视频
 
-    public CameraMachine(Context context, CameraView view, CameraInterface.CameraOpenOverCallback
-            cameraOpenOverCallback) {
+    public CameraMachine(Context context) {
         this.context = context;
         previewState = new PreviewState(this);
         borrowPictureState = new BorrowPictureState(this);
         borrowVideoState = new BorrowVideoState(this);
         //默认设置为空闲状态
-        this.state = previewState;
+//        this.state = previewState;
 //        this.cameraOpenOverCallback = cameraOpenOverCallback;
-        this.view = view;
+//        this.view = view;
     }
 
     public CameraView getView() {

@@ -2,19 +2,29 @@ package com.yoyo.mediacodec;
 
 import android.app.Activity;
 import android.hardware.Camera;
-import android.media.MediaFormat;
-import android.media.MediaMuxer;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.VideoView;
 
-import com.yoyo.mediacodec.camera.CameraInstance;
-import com.yoyo.mediacodec.camera.CameraView;
+import com.socks.library.KLog;
+import com.yoyo.mediacodec.camera.CameraInterface;
+import com.yoyo.mediacodec.camera.CaptureButton;
+import com.yoyo.mediacodec.camera.CountDownProgress;
+import com.yoyo.mediacodec.camera.JCameraView;
+import com.yoyo.mediacodec.camera.listener.CaptureButtonListener;
+import com.yoyo.mediacodec.camera.listener.CaptureListener;
+import com.yoyo.mediacodec.camera.listener.ErrorListener;
+import com.yoyo.mediacodec.camera.state.CameraMachine;
+import com.yoyo.mediacodec.camera.util.LogUtil;
+import com.yoyo.mediacodec.camera.util.ScreenUtils;
 import com.yoyo.mediacodec.play.Player;
 
 import java.io.IOException;
@@ -25,8 +35,12 @@ public class RecordActivity extends Activity {
     private View layoutVideo;
 
     private SurfaceView svLeft;
-    private CameraView svRight;
+    private JCameraView svRight;
     private ImageView baffleView ,baffleBgView ;
+    //Camera状态机
+    private CameraMachine mMachine;
+    private Camera mCamera;
+
 
     private MediaPlayer mp = new MediaPlayer();
 
@@ -37,6 +51,13 @@ public class RecordActivity extends Activity {
     private MediaRecorder mediaRecorder;
 
     private MediaProjection mediaProjection;
+    private VideoView mVideoview;
+    private ImageView mImageview;
+    private float screenProp = 0f;
+    private CaptureButton mRecordButton;
+    private int layout_width;
+    private int zoomGradient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +66,10 @@ public class RecordActivity extends Activity {
         layoutVideo = findViewById(R.id.layout_video);
         svLeft = findViewById(R.id.sv_left);
         svRight = findViewById(R.id.sv_right);
+        mVideoview = findViewById(R.id.video_preview);
+        mImageview = findViewById(R.id.image_photo);
+
+        mRecordButton = findViewById(R.id.record_button);
 
         player = new Player(svLeft);
 
@@ -63,67 +88,29 @@ public class RecordActivity extends Activity {
                 stop();
             }
         });
-
+        //拍摄按钮
         findViewById(R.id.btn_screen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
             }
         });
+        //暂停按钮
         findViewById(R.id.btn_stop_screen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
             }
         });
-
+        //切换按钮
         findViewById(R.id.btn_turn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                CameraInterface.getInstance().switchCamera(mVideoview.getHolder(),screenProp);
 
-                CameraInstance cameraInstance= CameraInstance.getInstance();
-                cameraInstance.switchCamera();
             }
         });
-//
-//        final int toOpen = getCurrentCameraId();
-//        mCamera = Camera.open(toOpen);
-//
-//        Camera.Parameters parameters = mCamera.getParameters();
-//        List<Camera.Size> videoSizes = parameters.getSupportedVideoSizes();
-//        if (videoSizes == null || videoSizes.size() == 0) {
-//            videoSizes = parameters.getSupportedPreviewSizes();
-//        }
-//        mVideoSize = chooseVideoSize(videoSizes);
-//
-//
-//        parameters.setRotation(90);
-//        mCamera.setDisplayOrientation(90);
-//
-//
-//
-//        mCamera.setParameters(parameters);
-//
-//        CameraCallback callback = new CameraCallback(mCamera, svRight);
 
-
-
-
-        baffleView   = (ImageView)   findViewById(R.id.baffle_view);
-        baffleBgView = (ImageView)   findViewById(R.id.baffle_bg_view);
-
-        svRight.setBaffleView(baffleView, baffleBgView);
-
-
-//        try {
-//            MediaMuxer mediaMuxer = new MediaMuxer("/mnt/sdcard/ffmpeg/output.mp4", MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-//
-//
-//            final MediaFormat format = mMediaCodec.getOutputFormat(); // API >= 16
-//            mTrackIndex = mediaMuxer.addTrack(format);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         mediaRecorder = new MediaRecorder();
 
@@ -134,12 +121,82 @@ public class RecordActivity extends Activity {
                 Log.e("====", "i:"+i+",i1:"+i1);
             }
         });
-        mediaRecorder.setCamera(CameraInstance.getInstance().getCamera());
-        initRecorder();
-
+//        mediaRecorder.setCamera(CameraInstance.getInstance().getCamera());
+        initData();
+        initRecordButton();
 
     }
 
+    private int button_size = 50;
+    private CameraMachine machine;
+    private ErrorListener errorLisenter;
+
+    private void initData() {
+        layout_width = ScreenUtils.getScreenWidth(getApplicationContext());
+        //缩放梯度
+        zoomGradient = (int) (layout_width / 16f);
+        LogUtil.i("zoom = " + zoomGradient);
+        machine = new CameraMachine(getApplicationContext());
+    }
+    public void initRecordButton(){
+        //拍照按钮
+
+        mRecordButton.setCaptureButtonListener(new CaptureButtonListener() {
+
+            @Override
+            public void recordShort(final long time) {
+               /* postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        machine.stopRecord(true, time);
+                    }
+                }, 1500 - time);*/
+
+            }
+
+            @Override
+            public void recordStart() {
+//                machine.record(mVideoview.getHolder().getSurface(), screenProp);
+            }
+
+            @Override
+            public void recordEnd(long time) {
+                machine.stopRecord(false, time);
+
+            }
+
+            @Override
+            public void recordZoom(float zoom) {
+                machine.zoom(zoom, CameraInterface.TYPE_RECORDER);
+
+            }
+
+            @Override
+            public void recordError() {
+                if (errorLisenter != null) {
+                    errorLisenter.AudioPermissionError();
+                }
+            }
+        });
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+     /*   if (Build.VERSION.SDK_INT >= 19) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        } else {*/
+            View decorView = getWindow().getDecorView();
+            int option = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(option);
+
+    }
 
     private void stop(){
 

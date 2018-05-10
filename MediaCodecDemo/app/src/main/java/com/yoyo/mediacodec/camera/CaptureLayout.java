@@ -60,7 +60,7 @@ public class CaptureLayout extends FrameLayout {
 
     private int layout_width;
     private int layout_height;
-    private int button_size;
+    private int button_size= 50;
     private int iconLeft = 0;
     private int iconRight = 0;
 
@@ -86,8 +86,8 @@ public class CaptureLayout extends FrameLayout {
         } else {
             layout_width = outMetrics.widthPixels / 2;
         }
-        button_size = (int) (layout_width / 4.5f);
-        layout_height = button_size + (button_size / 5) * 2 + 100;
+//        button_size = (int) (layout_width / 4.5f);
+//        layout_height = button_size + (button_size / 5) * 2 + 100;
 
         initView();
         initEvent();
@@ -140,9 +140,9 @@ public class CaptureLayout extends FrameLayout {
     private void initView() {
         setWillNotDraw(false);
         //拍照按钮
-        btn_capture = new CaptureButton(getContext(), button_size);
+        /*btn_capture = new CaptureButton(getContext(), button_size);
         LayoutParams btn_capture_param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        btn_capture_param.gravity = Gravity.CENTER;
+        btn_capture_param.gravity = Gravity.BOTTOM;
         btn_capture.setLayoutParams(btn_capture_param);
         btn_capture.setCaptureLisenter(new CaptureListener() {
             @Override
@@ -190,7 +190,7 @@ public class CaptureLayout extends FrameLayout {
                     captureLisenter.recordError();
                 }
             }
-        });
+        });*/
 
         //取消按钮
         btn_cancel = new TypeButton(getContext(), TypeButton.TYPE_CANCEL, button_size);
@@ -279,7 +279,7 @@ public class CaptureLayout extends FrameLayout {
         txt_tip.setGravity(Gravity.CENTER);
         txt_tip.setLayoutParams(txt_param);
 
-        this.addView(btn_capture);
+//        this.addView(btn_capture);
         this.addView(btn_cancel);
         this.addView(btn_confirm);
         this.addView(btn_return);

@@ -3,9 +3,10 @@ package com.yoyo.mediacodec.camera.state;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
-import com.cjt2325.cameralibrary.CameraInterface;
-import com.cjt2325.cameralibrary.JCameraView;
-import com.cjt2325.cameralibrary.util.LogUtil;
+import com.yoyo.mediacodec.camera.CameraInterface;
+import com.yoyo.mediacodec.camera.JCameraView;
+import com.yoyo.mediacodec.camera.util.LogUtil;
+
 
 /**
  * =====================================
