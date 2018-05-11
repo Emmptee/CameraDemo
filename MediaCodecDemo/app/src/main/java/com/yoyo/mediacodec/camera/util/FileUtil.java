@@ -3,10 +3,14 @@ package com.yoyo.mediacodec.camera.util;
 import android.graphics.Bitmap;
 import android.os.Environment;
 
+import com.socks.library.KLog;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.PublicKey;
 
 /**
  * =====================================
@@ -49,6 +53,29 @@ public class FileUtil {
             e.printStackTrace();
             return "";
         }
+    }
+
+
+    public static void savePicture(String dir ,Bitmap bitmap){
+        File file = new File(dir);
+        file.mkdirs();// 创建文件夹
+        String fileName = dir+"2233.jpg";
+        try {
+            FileOutputStream outputStream = new FileOutputStream(fileName);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);// 把数据写入文件
+            outputStream.flush();
+            outputStream.close();
+            KLog.e("保存文件名为---" + fileName);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+    public static void saveVideo(){
+
     }
 
     public static boolean deleteFile(String url) {

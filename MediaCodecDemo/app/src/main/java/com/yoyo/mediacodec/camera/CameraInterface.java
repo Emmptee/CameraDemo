@@ -24,6 +24,7 @@ import android.view.SurfaceHolder;
 import android.widget.ImageView;
 
 
+import com.socks.library.KLog;
 import com.yoyo.mediacodec.camera.listener.ErrorListener;
 import com.yoyo.mediacodec.camera.util.AngleUtil;
 import com.yoyo.mediacodec.camera.util.CameraParamUtil;
@@ -35,10 +36,15 @@ import com.yoyo.mediacodec.camera.util.ScreenUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import javax.security.auth.login.LoginException;
 
 import static android.graphics.Bitmap.createBitmap;
 
@@ -56,6 +62,7 @@ public class CameraInterface implements Camera.PreviewCallback {
     private static final String TAG = "CJT";
 
     private volatile static CameraInterface mCameraInterface;
+    private FileOutputStream outputStream;
 
     public static void destroyCameraInterface() {
         if (mCameraInterface != null) {
@@ -467,8 +474,9 @@ public class CameraInterface implements Camera.PreviewCallback {
                 break;
         }
 //
-        Log.i("CJT", angle + " = " + cameraAngle + " = " + nowAngle);
+        KLog.e("CJT", angle + " = " + cameraAngle + " = " + nowAngle);
         mCamera.takePicture(null, null, new Camera.PictureCallback() {
+
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -479,16 +487,22 @@ public class CameraInterface implements Camera.PreviewCallback {
                     matrix.setRotate(360 - nowAngle);
                     matrix.postScale(-1, 1);
                 }
-
+                KLog.e("进来开始拍照");
                 bitmap = createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
                 if (callback != null) {
+                    KLog.e("callback不为空");
                     if (nowAngle == 90 || nowAngle == 270) {
+                        KLog.e("角度为90或者270");
                         callback.captureResult(bitmap, true);
                     } else {
                         callback.captureResult(bitmap, false);
                     }
                 }
+                FileUtil.savePicture("mnt/sdcard/ffmpeg/",bitmap);
+//                FileUtil.saveBitmap("mnt/sdcard/ffmpeg",bitmap);
+
             }
+
         });
     }
 
@@ -541,6 +555,8 @@ public class CameraInterface implements Camera.PreviewCallback {
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+
+        mediaRecorder.setOutputFile("mnt/sdcard/ffmpeg/");
 
 
         Camera.Size videoSize;
@@ -596,11 +612,12 @@ public class CameraInterface implements Camera.PreviewCallback {
         }
         mediaRecorder.setPreviewDisplay(surface);
 
-        videoFileName = "video_" + System.currentTimeMillis() + ".mp4";
+/*        videoFileName = "video_" + System.currentTimeMillis() + ".mp4";
         if (saveVideoPath.equals("")) {
             saveVideoPath = Environment.getExternalStorageDirectory().getPath();
         }
-        videoFileAbsPath = saveVideoPath + File.separator + videoFileName;
+        videoFileAbsPath = saveVideoPath + File.separator + videoFileName;*/
+        videoFileAbsPath = "mnt/sdcard/ffmpeg"+ File.separator + "5566.mp4";
         mediaRecorder.setOutputFile(videoFileAbsPath);
         try {
             mediaRecorder.prepare();
@@ -621,6 +638,9 @@ public class CameraInterface implements Camera.PreviewCallback {
         } catch (RuntimeException e) {
             Log.i("CJT", "startRecord RuntimeException");
         }
+
+
+
     }
 
     //停止录像

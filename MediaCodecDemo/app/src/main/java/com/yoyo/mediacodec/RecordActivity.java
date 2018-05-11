@@ -1,6 +1,8 @@
 package com.yoyo.mediacodec;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -8,10 +10,12 @@ import android.media.projection.MediaProjection;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.socks.library.KLog;
@@ -21,16 +25,23 @@ import com.yoyo.mediacodec.camera.CountDownProgress;
 import com.yoyo.mediacodec.camera.JCameraView;
 import com.yoyo.mediacodec.camera.listener.CaptureButtonListener;
 import com.yoyo.mediacodec.camera.listener.CaptureListener;
+import com.yoyo.mediacodec.camera.listener.ClickListener;
 import com.yoyo.mediacodec.camera.listener.ErrorListener;
+import com.yoyo.mediacodec.camera.listener.JCameraListener;
+import com.yoyo.mediacodec.camera.listener.TypeListener;
 import com.yoyo.mediacodec.camera.state.CameraMachine;
+import com.yoyo.mediacodec.camera.util.DeviceUtil;
+import com.yoyo.mediacodec.camera.util.FileUtil;
 import com.yoyo.mediacodec.camera.util.LogUtil;
 import com.yoyo.mediacodec.camera.util.ScreenUtils;
+import com.yoyo.mediacodec.camera.view.CameraView;
 import com.yoyo.mediacodec.play.Player;
 
 import java.io.IOException;
 import java.util.List;
 
-public class RecordActivity extends Activity {
+public class RecordActivity extends Activity implements CameraInterface.CameraOpenOverCallback, SurfaceHolder
+        .Callback {
 
     private View layoutVideo;
 
@@ -58,6 +69,9 @@ public class RecordActivity extends Activity {
     private int layout_width;
     private int zoomGradient;
 
+    private CaptureButtonListener captureButtonListener;    //拍照按钮监听
+    private TypeListener typeLisenter;          //拍照或录制后接结果按钮监听
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +85,54 @@ public class RecordActivity extends Activity {
 
         mRecordButton = findViewById(R.id.record_button);
 
+        svRight.setSaveVideoPath("/mnt/sdcard/ffmpeg");
+//        svRight.setFeatures(JCameraView.BUTTON_STATE_BOTH);
+        svRight.setTip("JCameraView Tip");
+        svRight.setMediaQuality(JCameraView.MEDIA_QUALITY_MIDDLE);
+        svRight.setErrorLisenter(new ErrorListener() {
+            @Override
+            public void onError() {
+                //错误监听
+                Log.e("CJT", "camera error");
+                Intent intent = new Intent();
+                setResult(103, intent);
+                finish();
+            }
+
+            @Override
+            public void AudioPermissionError() {
+                Toast.makeText(RecordActivity.this, "给点录音权限可以?", Toast.LENGTH_SHORT).show();
+            }
+        });
+        //JCameraView监听
+        svRight.setJCameraLisenter(new JCameraListener() {
+            @Override
+            public void captureSuccess(Bitmap bitmap) {
+                //获取图片bitmap
+                KLog.e("JCameraView", "bitmapmap = " + bitmap.getWidth());
+                String path = FileUtil.saveBitmap("JCamera", bitmap);
+                Intent intent = new Intent();
+                intent.putExtra("path", path);
+                setResult(101, intent);
+                finish();
+            }
+
+            @Override
+            public void recordSuccess(String url, Bitmap firstFrame) {
+                //获取视频路径
+                String path = FileUtil.saveBitmap("JCamera", firstFrame);
+                Log.e("CJT", "url = " + url + ", Bitmap = " + path);
+                Intent intent = new Intent();
+                intent.putExtra("path", path);
+                setResult(101, intent);
+                finish();
+            }
+        });
+
+        Log.e("CJT", DeviceUtil.getDeviceModel());
+
+
+        /**=================================*/
         player = new Player(svLeft);
 
         findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
@@ -102,11 +164,13 @@ public class RecordActivity extends Activity {
 
             }
         });
+        mVideoview.getHolder().addCallback(this);
+
         //切换按钮
         findViewById(R.id.btn_turn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CameraInterface.getInstance().switchCamera(mVideoview.getHolder(),screenProp);
+                machine.swtich(mVideoview.getHolder(), screenProp);
 
             }
         });
@@ -136,7 +200,7 @@ public class RecordActivity extends Activity {
         //缩放梯度
         zoomGradient = (int) (layout_width / 16f);
         LogUtil.i("zoom = " + zoomGradient);
-        machine = new CameraMachine(getApplicationContext());
+        machine = new CameraMachine(getApplicationContext(),svRight);
     }
     public void initRecordButton(){
         //拍照按钮
@@ -144,8 +208,17 @@ public class RecordActivity extends Activity {
         mRecordButton.setCaptureButtonListener(new CaptureButtonListener() {
 
             @Override
+            public void takePictures() {
+                KLog.e("在activity中拍照");
+//                captureButtonListener.takePictures();
+                machine.capture();
+//                player.playUrl("/mnt/sdcard/ffmpeg/666.mp4");
+
+            }
+
+            @Override
             public void recordShort(final long time) {
-               /* postDelayed(new Runnable() {
+                /*postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         machine.stopRecord(true, time);
@@ -156,18 +229,23 @@ public class RecordActivity extends Activity {
 
             @Override
             public void recordStart() {
-//                machine.record(mVideoview.getHolder().getSurface(), screenProp);
+                machine.record(mVideoview.getHolder().getSurface(), screenProp);
+                player.playUrl("/mnt/sdcard/ffmpeg/666.mp4");
             }
 
             @Override
             public void recordEnd(long time) {
+                KLog.e("在activity中摄像结束");
                 machine.stopRecord(false, time);
-
+                stop();
+//                captureButtonListener.recordEnd(time);
             }
 
             @Override
             public void recordZoom(float zoom) {
                 machine.zoom(zoom, CameraInterface.TYPE_RECORDER);
+//                player.playUrl("/mnt/sdcard/ffmpeg/666.mp4");
+//                captureButtonListener.recordZoom(zoom);
 
             }
 
@@ -196,6 +274,18 @@ public class RecordActivity extends Activity {
             int option = View.SYSTEM_UI_FLAG_FULLSCREEN;
             decorView.setSystemUiVisibility(option);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        svRight.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        svRight.onPause();
     }
 
     private void stop(){
@@ -271,6 +361,26 @@ public class RecordActivity extends Activity {
 //        virtualDisplay = mediaProjection
 //                .createVirtualDisplay("mediaprojection", width, height, dpi, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder
 //                        .getSurface(), null, null);
+
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
+    }
+
+    @Override
+    public void cameraHasOpened() {
 
     }
 }

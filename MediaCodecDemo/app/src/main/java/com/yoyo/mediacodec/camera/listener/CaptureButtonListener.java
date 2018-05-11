@@ -5,6 +5,7 @@ package com.yoyo.mediacodec.camera.listener;
  * @date 2018/05/10
  */
 public interface CaptureButtonListener {
+    void takePictures();
 
     void recordShort(long time);
 

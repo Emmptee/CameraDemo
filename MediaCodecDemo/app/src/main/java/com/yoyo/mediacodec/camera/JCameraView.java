@@ -139,7 +139,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         //缩放梯度
         zoomGradient = (int) (layout_width / 16f);
         LogUtil.i("zoom = " + zoomGradient);
-        machine = new CameraMachine(getContext());
+        machine = new CameraMachine(getContext(),this);
     }
 
     private void initView() {
@@ -208,15 +208,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
                 machine.confirm();
             }
         });
-        //退出
-//        mCaptureLayout.setReturnLisenter(new ReturnListener() {
-//            @Override
-//            public void onReturn() {
-//                if (jCameraLisenter != null) {
-//                    jCameraLisenter.quit();
-//                }
-//            }
-//        });
+
         mCaptureLayout.setLeftClickListener(new ClickListener() {
             @Override
             public void onClick() {

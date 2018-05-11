@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.yoyo.mediacodec.camera.listener.CaptureButtonListener;
 import com.yoyo.mediacodec.camera.listener.CaptureListener;
 import com.yoyo.mediacodec.camera.listener.ClickListener;
 import com.yoyo.mediacodec.camera.listener.ReturnListener;
@@ -37,6 +38,7 @@ public class CaptureLayout extends FrameLayout {
     private ReturnListener returnListener;      //退出按钮监听
     private ClickListener leftClickListener;    //左边按钮监听
     private ClickListener rightClickListener;   //右边按钮监听
+    private CaptureButtonListener captureButtonListener;
 
     public void setTypeLisenter(TypeListener typeLisenter) {
         this.typeLisenter = typeLisenter;
@@ -46,11 +48,15 @@ public class CaptureLayout extends FrameLayout {
         this.captureLisenter = captureLisenter;
     }
 
+    public void setCaptureButtonLisenter(CaptureButtonListener captureButtonLisenter){
+        this.captureButtonListener = captureButtonLisenter;
+    }
+
     public void setReturnLisenter(ReturnListener returnListener) {
         this.returnListener = returnListener;
     }
 
-    private CaptureButton btn_capture;      //拍照按钮
+//    private CaptureButton btn_capture;      //拍照按钮
     private TypeButton btn_confirm;         //确认按钮
     private TypeButton btn_cancel;          //取消按钮
     private ReturnButton btn_return;        //返回按钮
@@ -114,7 +120,7 @@ public class CaptureLayout extends FrameLayout {
             btn_return.setVisibility(GONE);
         if (this.iconRight != 0)
             iv_custom_right.setVisibility(GONE);
-        btn_capture.setVisibility(GONE);
+//        btn_capture.setVisibility(GONE);
         btn_cancel.setVisibility(VISIBLE);
         btn_confirm.setVisibility(VISIBLE);
         btn_cancel.setClickable(false);
@@ -293,10 +299,10 @@ public class CaptureLayout extends FrameLayout {
      * 对外提供的API                      *
      **************************************************/
     public void resetCaptureLayout() {
-        btn_capture.resetState();
+//        btn_capture.resetState();
         btn_cancel.setVisibility(GONE);
         btn_confirm.setVisibility(GONE);
-        btn_capture.setVisibility(VISIBLE);
+//        btn_capture.setVisibility(VISIBLE);
         if (this.iconLeft != 0)
             iv_custom_left.setVisibility(VISIBLE);
         else
@@ -323,11 +329,11 @@ public class CaptureLayout extends FrameLayout {
     }
 
     public void setDuration(int duration) {
-        btn_capture.setDuration(duration);
+//        btn_capture.setDuration(duration);
     }
 
     public void setButtonFeatures(int state) {
-        btn_capture.setButtonFeatures(state);
+//        btn_capture.setButtonFeatures(state);
     }
 
     public void setTip(String tip) {

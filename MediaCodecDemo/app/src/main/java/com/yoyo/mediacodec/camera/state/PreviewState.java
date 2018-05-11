@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import com.socks.library.KLog;
 import com.yoyo.mediacodec.camera.CameraInterface;
 import com.yoyo.mediacodec.camera.JCameraView;
 import com.yoyo.mediacodec.camera.util.LogUtil;
@@ -48,6 +49,7 @@ class PreviewState implements State {
     @Override
     public void swtich(SurfaceHolder holder, float screenProp) {
         CameraInterface.getInstance().switchCamera(holder, screenProp);
+        KLog.e("调整摄像头");
     }
 
     @Override

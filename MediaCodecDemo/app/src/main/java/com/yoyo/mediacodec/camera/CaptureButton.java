@@ -195,7 +195,7 @@ public class CaptureButton extends View {
             case STATE_PRESS:
                 if (captureButtonListener != null && (button_state == JCameraView.BUTTON_STATE_ONLY_CAPTURE
                         || button_state == JCameraView.BUTTON_STATE_BOTH)) {
-//                    startCaptureAnimation(button_inside_radius);
+                    startCaptureAnimation(button_inside_radius);
                 } else {
                     state = STATE_IDLE;
                 }
@@ -233,28 +233,28 @@ public class CaptureButton extends View {
         );
     }
 
-    //内圆动画
-//    private void startCaptureAnimation(float inside_start) {
-//        ValueAnimator inside_anim = ValueAnimator.ofFloat(inside_start, inside_start * 0.75f, inside_start);
-//        inside_anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                button_inside_radius = (float) animation.getAnimatedValue();
-//                invalidate();
-//            }
-//        });
-//        inside_anim.addListener(new AnimatorListenerAdapter() {
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                super.onAnimationEnd(animation);
-//                //回调拍照接口
-//                captureButtonListener.takePictures();
-//                state = STATE_BAN;
-//            }
-//        });
-//        inside_anim.setDuration(100);
-//        inside_anim.start();
-//    }
+    /**内圆动画*/
+    private void startCaptureAnimation(float inside_start) {
+        ValueAnimator inside_anim = ValueAnimator.ofFloat(inside_start, inside_start * 0.75f, inside_start);
+        inside_anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                button_inside_radius = (float) animation.getAnimatedValue();
+                invalidate();
+            }
+        });
+        inside_anim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                //回调拍照接口
+                captureButtonListener.takePictures();
+                state = STATE_BAN;
+            }
+        });
+        inside_anim.setDuration(100);
+        inside_anim.start();
+    }
 
     //内外圆动画
     private void startRecordAnimation(float outside_start, float outside_end, float inside_start, float inside_end) {
